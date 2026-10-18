@@ -1,25 +1,40 @@
-app_name = "integrasuite_budget"
-app_title = "integrasuite_budget"
+app_name = "budget"
+app_title = "Budget"
 app_publisher = "pemanorbu"
 app_description = "integrasuite_budget"
 app_email = "pemanorbu132@gmail.com"
 app_license = "mit"
-
+app_home = "/desk/home"
 # Apps
 # ------------------
 
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "integrasuite_budget",
-# 		"logo": "/assets/integrasuite_budget/logo.png",
-# 		"title": "integrasuite_budget",
-# 		"route": "/integrasuite_budget",
-# 		"has_permission": "integrasuite_budget.api.permission.has_app_permission",
-# 	}
-# ]
+add_to_apps_screen = [
+	{
+		"name": "integrasuite_budget",
+		"logo": "/assets/integrasuite_budget/images/image.png",
+		"title": app_title,
+		"route": app_home,
+		# "has_permission": "integrasuite_budget.api.permission.has_app_permission",
+        "sequence_id": 3,
+	}
+]
+
+
+override_doctype_class = {
+    "Tax Withholding Entry": "integrasuite_budget.overrides.erpnext.tax_withholding_entry.CustomTaxWithholdingEntry",
+    "Cost Center": "integrasuite_budget.overrides.erpnext.cost_center.CustomCostCenter",
+}
+doctype_js = {
+    "Journal Entry": "overrides/erpnext/js/journal_entry.js",
+}
+
+override_whitelisted_methods = {
+    "erpnext.setup.doctype.party_type.party_type.get_party_type":"integrasuite_budget.overrides.erpnext.party_type.get_party_type",
+}
+
 
 # The dock, the rail down the left of the desk, is a document rather than a hook. Author it in
 # Manage Dock on a developer-mode site and press Export to App, and it is written to

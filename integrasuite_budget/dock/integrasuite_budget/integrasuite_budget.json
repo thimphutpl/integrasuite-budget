@@ -1,0 +1,23 @@
+{
+ "app": "integrasuite_budget",
+ "creation": "2026-10-17 13:26:50.409576",
+ "docstatus": 0,
+ "doctype": "Dock",
+ "idx": 0,
+ "items": [
+  {
+   "added": 1,
+   "hidden": 0,
+   "icon": "setting",
+   "link_to": "Budget",
+   "link_type": "Sidebar",
+   "title": "Budget"
+  }
+ ],
+ "modified": "2026-10-17 14:02:46.078037",
+ "modified_by": "Administrator",
+ "name": "integrasuite_budget",
+ "owner": "Administrator",
+ "standard": 1,
+ "user": ""
+}

@@ -24,15 +24,16 @@ add_to_apps_screen = [
 
 
 override_doctype_class = {
-    "Tax Withholding Entry": "integrasuite_budget.overrides.erpnext.tax_withholding_entry.CustomTaxWithholdingEntry",
-    "Cost Center": "integrasuite_budget.overrides.erpnext.cost_center.CustomCostCenter",
+    "Tax Withholding Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.tax_withholding_entry.CustomTaxWithholdingEntry",
+    "Cost Center": "integrasuite_budget.overrides.erpnext.accounts.doctype.cost_center.CustomCostCenter",
+    "GL Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.gl_entry.CustomGLEntry",
 }
 doctype_js = {
-    "Journal Entry": "overrides/erpnext/js/journal_entry.js",
+    "Journal Entry": "overrides/erpnext/js/accounts/journal_entry.js",
 }
 
 override_whitelisted_methods = {
-    "erpnext.setup.doctype.party_type.party_type.get_party_type":"integrasuite_budget.overrides.erpnext.party_type.get_party_type",
+    "erpnext.setup.doctype.party_type.party_type.get_party_type":"integrasuite_budget.overrides.erpnext.accounts.doctype.party_type.get_party_type",
 }
 
 

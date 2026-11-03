@@ -30,7 +30,17 @@ override_doctype_class = {
 }
 doctype_js = {
     "Journal Entry": "overrides/erpnext/accounts/js/journal_entry.js",
+    # hide_buttons.js defines the helper the file after it uses, so it must come first.
+    "Material Request": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/stock/js/material_request.js"],
+    "Purchase Order": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/buying/js/purchase_order.js"],
+    "Purchase Receipt": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/stock/js/purchase_receipt.js"],
+    "Purchase Invoice": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/accounts/js/purchase_invoice.js"],
 }
+
+after_migrate = [
+    "integrasuite_budget.overrides.erpnext.buying.sidebar.hide_sidebar_items",
+    "integrasuite_budget.overrides.erpnext.property_setters.hide_fields",
+]
 
 
 

@@ -29,8 +29,10 @@ override_doctype_class = {
     "GL Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.gl_entry.CustomGLEntry",
 }
 doctype_js = {
-    "Journal Entry": "overrides/erpnext/js/accounts/journal_entry.js",
+    "Journal Entry": "overrides/erpnext/accounts/js/journal_entry.js",
 }
+
+
 
 override_whitelisted_methods = {
     "erpnext.setup.doctype.party_type.party_type.get_party_type":"integrasuite_budget.overrides.erpnext.accounts.doctype.party_type.get_party_type",
@@ -293,3 +295,4 @@ override_whitelisted_methods = {
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+import integrasuite_budget.overrides.erpnext.controller.budget_controller

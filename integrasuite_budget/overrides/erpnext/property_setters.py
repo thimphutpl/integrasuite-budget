@@ -7,6 +7,7 @@ HIDDEN_FIELDS = [
     ("Purchase Receipt", "address_and_contact_tab"),
     ("Purchase Invoice", "address_and_contact_tab"),
     ("Item", "allow_negative_stock"),
+    ("Stock Settings", "allow_negative_stock"),
 ]
 
 

@@ -30,6 +30,7 @@ override_doctype_class = {
 }
 doctype_js = {
     "Journal Entry": "overrides/erpnext/accounts/js/journal_entry.js",
+    "Branch": "overrides/erpnext/setup/js/branch.js",
     # hide_buttons.js defines the helper the file after it uses, so it must come first.
     "Material Request": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/stock/js/material_request.js"],
     "Purchase Order": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/buying/js/purchase_order.js"],

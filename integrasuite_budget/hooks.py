@@ -41,6 +41,8 @@ after_migrate = [
     "integrasuite_budget.overrides.erpnext.buying.sidebar.hide_sidebar_items",
     "integrasuite_budget.overrides.erpnext.property_setters.hide_fields",
     "integrasuite_budget.overrides.erpnext.custom_fields.add_custom_fields",
+    "integrasuite_budget.overrides.erpnext.property_setters.make_fields_read_only",
+    "integrasuite_budget.overrides.erpnext.property_setters.make_fields_required",
 ]
 
 

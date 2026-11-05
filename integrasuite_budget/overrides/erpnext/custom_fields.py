@@ -9,8 +9,18 @@ BRANCH_FIELD = {
     "insert_after": "company",
 }
 
+# PO, PR and PI already have a header Cost Center; MR gets the same field so it maps across.
+MR_COST_CENTER_FIELD = {
+    "fieldname": "cost_center",
+    "label": "Cost Center",
+    "fieldtype": "Link",
+    "options": "Cost Center",
+    "read_only": 1,
+    "insert_after": "branch",
+}
+
 CUSTOM_FIELDS = {
-    "Material Request": [BRANCH_FIELD],
+    "Material Request": [BRANCH_FIELD, MR_COST_CENTER_FIELD],
     "Purchase Order": [BRANCH_FIELD],
     "Purchase Receipt": [BRANCH_FIELD],
     "Purchase Invoice": [BRANCH_FIELD],

@@ -122,3 +122,32 @@ def set_ld_from_purchase_receipt(purchase_receipt, invoice):
     invoice.write_off_amount = calculate_ld_amount(ld_days, purchase_receipt.grand_total)
     invoice.write_off_account = write_off_account
     invoice.write_off_cost_center = invoice.get("write_off_cost_center") or cost_center
+
+
+def get_supplier_invoice_no_from_receipts(invoice):
+    """Supplier Invoice No from the Purchase Receipts the invoice's items come from.
+
+    PR's supplier_delivery_note is relabelled "Supplier Invoice No" (see property_setters.py).
+    Several receipts with different numbers are joined with ", ". Returns "" if none is set.
+    """
+    receipts = list(dict.fromkeys(d.purchase_receipt for d in invoice.get("items") if d.purchase_receipt))
+    if not receipts:
+        return ""
+
+    numbers = frappe.get_all(
+        "Purchase Receipt",
+        filters={"name": ["in", receipts], "supplier_delivery_note": ["is", "set"]},
+        pluck="supplier_delivery_note",
+    )
+    return ", ".join(dict.fromkeys(n.strip() for n in numbers if n and n.strip()))
+
+
+def set_bill_no_from_purchase_receipt(doc, method=None):
+    """doc_events validate: Supplier Invoice No comes from the linked Purchase Receipt(s).
+
+    When the PR has one it is fixed (read-only in js/purchase_invoice.js); otherwise the user's
+    value is kept.
+    """
+    supplier_invoice_no = get_supplier_invoice_no_from_receipts(doc)
+    if supplier_invoice_no:
+        doc.bill_no = supplier_invoice_no

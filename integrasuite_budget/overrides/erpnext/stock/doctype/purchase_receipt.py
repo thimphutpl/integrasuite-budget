@@ -5,6 +5,7 @@ from erpnext.stock.doctype.purchase_receipt.purchase_receipt import (
     make_purchase_invoice as erpnext_make_purchase_invoice,
 )
 from integrasuite_budget.overrides.erpnext.accounts.doctype.purchase_invoice import (
+    set_bill_no_from_purchase_receipt,
     set_ld_from_purchase_receipt,
 )
 
@@ -20,11 +21,13 @@ def validate_actual_receipt_date(doc, method=None):
 
 @frappe.whitelist()
 def make_purchase_invoice(source_name, target_doc=None, args=None):
-    """ERPNext's PR -> PI mapping, plus Liquidated Damages for a late receipt.
+    """ERPNext's PR -> PI mapping, plus Supplier Invoice No and Liquidated Damages for a late receipt.
 
     Replaces erpnext...purchase_receipt.make_purchase_invoice via override_whitelisted_methods.
     """
     invoice = erpnext_make_purchase_invoice(source_name, target_doc, args)
+
+    set_bill_no_from_purchase_receipt(invoice)
 
     set_ld_from_purchase_receipt(frappe.get_doc("Purchase Receipt", source_name), invoice)
 

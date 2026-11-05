@@ -52,6 +52,8 @@ def make_fields_read_only():
 REQUIRED_FIELDS = [
     ("Purchase Order", "set_warehouse"),
     ("Purchase Receipt", "set_warehouse"),
+    # Copied to the Purchase Invoice's Supplier Invoice No (bill_no), see accounts/doctype/purchase_invoice.py
+    ("Purchase Receipt", "supplier_delivery_note"),
 ]
 
 # Fields mandatory only under a condition, as (doctype, fieldname, condition).
@@ -85,6 +87,7 @@ FIELD_PROPERTIES = [
     ("Purchase Invoice", "write_off", "collapsible", "1", "Check"),
     ("Purchase Invoice", "write_off_amount", "label", "Write Off / LD Amount", "Data"),
     ("Purchase Invoice", "write_off_cost_center", "fetch_from", "branch.cost_center", "Small Text"),
+    ("Purchase Receipt", "supplier_delivery_note", "label", "Supplier Invoice No", "Data"),
 ]
 
 

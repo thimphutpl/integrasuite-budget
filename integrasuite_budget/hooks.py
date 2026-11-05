@@ -198,6 +198,9 @@ doc_events = {
     "Purchase Receipt": {
         "validate": "integrasuite_budget.overrides.erpnext.stock.doctype.purchase_receipt.validate_actual_receipt_date",
     },
+    "Purchase Invoice": {
+        "validate": "integrasuite_budget.overrides.erpnext.accounts.doctype.purchase_invoice.set_bill_no_from_purchase_receipt",
+    },
 }
 
 # doc_events = {

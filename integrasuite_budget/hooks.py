@@ -27,6 +27,7 @@ override_doctype_class = {
     "Tax Withholding Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.tax_withholding_entry.CustomTaxWithholdingEntry",
     "Cost Center": "integrasuite_budget.overrides.erpnext.accounts.doctype.cost_center.CustomCostCenter",
     "GL Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.gl_entry.CustomGLEntry",
+    "Purchase Invoice": "integrasuite_budget.overrides.erpnext.accounts.doctype.purchase_invoice.CustomPurchaseInvoice",
 }
 doctype_js = {
     "Journal Entry": "overrides/erpnext/accounts/js/journal_entry.js",
@@ -44,12 +45,14 @@ after_migrate = [
     "integrasuite_budget.overrides.erpnext.custom_fields.add_custom_fields",
     "integrasuite_budget.overrides.erpnext.property_setters.make_fields_read_only",
     "integrasuite_budget.overrides.erpnext.property_setters.make_fields_required",
+    "integrasuite_budget.overrides.erpnext.property_setters.set_field_properties",
 ]
 
 
 
 override_whitelisted_methods = {
     "erpnext.setup.doctype.party_type.party_type.get_party_type":"integrasuite_budget.overrides.erpnext.accounts.doctype.party_type.get_party_type",
+    "erpnext.stock.doctype.purchase_receipt.purchase_receipt.make_purchase_invoice": "integrasuite_budget.overrides.erpnext.stock.doctype.purchase_receipt.make_purchase_invoice",
 }
 
 
@@ -190,6 +193,12 @@ override_whitelisted_methods = {
 # Document Events
 # ---------------
 # Hook on document methods and events
+
+doc_events = {
+    "Purchase Receipt": {
+        "validate": "integrasuite_budget.overrides.erpnext.stock.doctype.purchase_receipt.validate_actual_receipt_date",
+    },
+}
 
 # doc_events = {
 # 	"*": {

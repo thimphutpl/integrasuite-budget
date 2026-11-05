@@ -76,3 +76,23 @@ def make_fields_required():
             continue
 
         make_property_setter(doctype, fieldname, "mandatory_depends_on", condition, "Code")
+
+
+# Other field properties, as (doctype, fieldname, property, value, property_type).
+FIELD_PROPERTIES = [
+    # Liquidated Damages reuse ERPNext's Write Off section (see accounts/doctype/purchase_invoice.py)
+    ("Purchase Invoice", "write_off", "label", "Write Off / Liquidity Damages", "Data"),
+    ("Purchase Invoice", "write_off", "collapsible", "1", "Check"),
+    ("Purchase Invoice", "write_off_amount", "label", "Write Off / LD Amount", "Data"),
+    ("Purchase Invoice", "write_off_cost_center", "fetch_from", "branch.cost_center", "Small Text"),
+]
+
+
+def set_field_properties():
+    """Apply the properties above with Property Setters, like hide_fields."""
+    for doctype, fieldname, prop, value, property_type in FIELD_PROPERTIES:
+        filters = {"doc_type": doctype, "field_name": fieldname, "property": prop}
+        if frappe.db.get_value("Property Setter", filters, "value") == value:
+            continue
+
+        make_property_setter(doctype, fieldname, prop, value, property_type)

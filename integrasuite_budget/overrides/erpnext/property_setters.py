@@ -9,6 +9,13 @@ HIDDEN_FIELDS = [
     ("Purchase Order", "project"),
     ("Purchase Receipt", "project"),
     ("Purchase Invoice", "project"),
+    # Single-company site: ERPNext hides Company itself (erpnext.hide_company), but only after the
+    # form is drawn, so it blinked and Branch (inserted after it) jumped. Hiding it in the meta
+    # avoids that. If a second company is added, remove these AND delete their Property Setters.
+    ("Material Request", "company"),
+    ("Purchase Order", "company"),
+    ("Purchase Receipt", "company"),
+    ("Purchase Invoice", "company"),
     ("Item", "allow_negative_stock"),
     ("Stock Settings", "allow_negative_stock"),
     ("Buying Settings", "allow_negative_rates_for_items"),

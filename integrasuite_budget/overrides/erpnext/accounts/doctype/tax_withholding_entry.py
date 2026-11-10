@@ -65,15 +65,26 @@ def custom_create_base_entry(self, source_entry, category, tax_rate, default_obj
 
     if default_obj:
         entry.update(default_obj)
+    
 
     # cost_center = (
     #     self.doc.get("cost_center")
     #     or erpnext.get_default_cost_center(self.doc.company)
     # )
     cost_center = self.party_row.get("cost_center") if self.party_row else None
+    account = frappe.db.get_value(
+        "Tax Withholding Account",
+        {
+            "parent": category.name,
+            "company": self.doc.company,
+        },
+        "account",
+    )
+
 
     entry.update(
         {
+            "tax_account": account,
             "taxable_doctype": source_entry.taxable_doctype,
             "taxable_name": source_entry.taxable_name,
             "taxable_date": source_entry.taxable_date,

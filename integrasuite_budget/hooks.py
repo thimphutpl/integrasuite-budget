@@ -37,6 +37,7 @@ doctype_js = {
     "Purchase Order": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/buying/js/purchase_order.js"],
     "Purchase Receipt": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/stock/js/purchase_receipt.js"],
     "Purchase Invoice": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/accounts/js/purchase_invoice.js"],
+    "Stock Entry": "overrides/erpnext/js/branch.js",
 }
 
 after_migrate = [
@@ -46,6 +47,7 @@ after_migrate = [
     "integrasuite_budget.overrides.erpnext.property_setters.make_fields_read_only",
     "integrasuite_budget.overrides.erpnext.property_setters.make_fields_required",
     "integrasuite_budget.overrides.erpnext.property_setters.set_field_properties",
+    "integrasuite_budget.overrides.erpnext.property_setters.move_stock_entry_accounting_dimensions",
 ]
 
 
@@ -200,6 +202,9 @@ doc_events = {
     },
     "Purchase Invoice": {
         "validate": "integrasuite_budget.overrides.erpnext.accounts.doctype.purchase_invoice.set_bill_no_from_purchase_receipt",
+    },
+    "Stock Entry": {
+        "validate": "integrasuite_budget.overrides.erpnext.stock.doctype.stock_entry.set_cost_center_from_branch",
     },
 }
 

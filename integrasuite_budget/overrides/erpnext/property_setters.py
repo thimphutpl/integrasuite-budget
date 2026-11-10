@@ -1,3 +1,5 @@
+import json
+
 import frappe
 from frappe.custom.doctype.property_setter.property_setter import make_property_setter
 
@@ -9,6 +11,7 @@ HIDDEN_FIELDS = [
     ("Purchase Order", "project"),
     ("Purchase Receipt", "project"),
     ("Purchase Invoice", "project"),
+    ("Stock Entry", "project"),
     # Single-company site: ERPNext hides Company itself (erpnext.hide_company), but only after the
     # form is drawn, so it blinked and Branch (inserted after it) jumped. Hiding it in the meta
     # avoids that. If a second company is added, remove these AND delete their Property Setters.
@@ -16,6 +19,7 @@ HIDDEN_FIELDS = [
     ("Purchase Order", "company"),
     ("Purchase Receipt", "company"),
     ("Purchase Invoice", "company"),
+    ("Stock Entry", "company"),
     ("Item", "allow_negative_stock"),
     ("Stock Settings", "allow_negative_stock"),
     ("Buying Settings", "allow_negative_rates_for_items"),
@@ -42,6 +46,7 @@ READ_ONLY_FIELDS = [
     ("Purchase Order", "cost_center"),
     ("Purchase Receipt", "cost_center"),
     ("Purchase Invoice", "cost_center"),
+    ("Stock Entry", "cost_center"),
 ]
 
 
@@ -95,6 +100,10 @@ FIELD_PROPERTIES = [
     ("Purchase Invoice", "write_off_amount", "label", "Write Off / LD Amount", "Data"),
     ("Purchase Invoice", "write_off_cost_center", "fetch_from", "branch.cost_center", "Small Text"),
     ("Purchase Receipt", "supplier_delivery_note", "label", "Supplier Invoice No", "Data"),
+    # Stock Entry's Accounting Dimensions is a tab; it becomes a collapsible section like on PO,
+    # and move_stock_entry_accounting_dimensions() puts it on the Details tab.
+    ("Stock Entry", "accounting_dimensions_section", "fieldtype", "Section Break", "Select"),
+    ("Stock Entry", "accounting_dimensions_section", "collapsible", "1", "Check"),
 ]
 
 
@@ -106,3 +115,37 @@ def set_field_properties():
             continue
 
         make_property_setter(doctype, fieldname, prop, value, property_type)
+
+
+# Stock Entry: the Accounting Dimensions fields, moved to just before this field on the Details tab
+# (after Posting Date/Time, before Inspection Required).
+# Cost Center goes before the column break so it sits in the left column (Project is hidden).
+SE_ACCOUNTING_DIMENSION_FIELDS = ["accounting_dimensions_section", "project", "cost_center", "dimension_col_break"]
+SE_ACCOUNTING_DIMENSIONS_BEFORE = "reference_section"
+
+
+def move_stock_entry_accounting_dimensions():
+    """Move Stock Entry's Accounting Dimensions onto the Details tab with a `field_order` Property Setter.
+
+    Standard fields can't be moved with insert_after, so this stores the whole order, the same
+    thing Customize Form does. It is rebuilt from ERPNext's current order on every migrate, so
+    fields added by an ERPNext upgrade are kept.
+    """
+    doctype = "Stock Entry"
+    standard_order = [df.fieldname for df in frappe.get_doc("DocType", doctype).fields]
+    if SE_ACCOUNTING_DIMENSIONS_BEFORE not in standard_order or not all(
+        f in standard_order for f in SE_ACCOUNTING_DIMENSION_FIELDS
+    ):
+        # ERPNext renamed something; leave the layout alone rather than guess.
+        return
+
+    order = [f for f in standard_order if f not in SE_ACCOUNTING_DIMENSION_FIELDS]
+    index = order.index(SE_ACCOUNTING_DIMENSIONS_BEFORE)
+    order[index:index] = SE_ACCOUNTING_DIMENSION_FIELDS
+    value = json.dumps(order)
+
+    filters = {"doc_type": doctype, "property": "field_order", "doctype_or_field": "DocType"}
+    if frappe.db.get_value("Property Setter", filters, "value") == value:
+        return
+
+    make_property_setter(doctype, None, "field_order", value, "Data", for_doctype=True)

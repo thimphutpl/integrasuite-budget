@@ -54,6 +54,8 @@ CUSTOM_FIELDS = {
     "Purchase Order": [BRANCH_FIELD],
     "Purchase Receipt": [BRANCH_FIELD, PR_ACTUAL_RECEIPT_DATE_FIELD],
     "Purchase Invoice": [BRANCH_FIELD, *PI_LD_FIELDS],
+    # Stock Entry already has a header Cost Center (moved to the Details tab in property_setters.py).
+    "Stock Entry": [{**BRANCH_FIELD, "insert_after": "stock_entry_type"}],
 }
 
 

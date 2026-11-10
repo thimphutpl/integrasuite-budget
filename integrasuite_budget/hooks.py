@@ -37,7 +37,7 @@ doctype_js = {
     "Purchase Order": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/buying/js/purchase_order.js"],
     "Purchase Receipt": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/stock/js/purchase_receipt.js"],
     "Purchase Invoice": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/accounts/js/purchase_invoice.js"],
-    "Stock Entry": "overrides/erpnext/js/branch.js",
+    "Stock Entry": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/stock/js/stock_entry.js"],
 }
 
 after_migrate = [

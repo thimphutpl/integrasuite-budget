@@ -211,7 +211,7 @@ def get_tds_invoices(tax_withholding_category, from_date, to_date, name, filter_
 		END AS tpn,
 
 		t.branch AS branch,
-		t.cost_center AS cost_center,
+		t1.cost_center AS cost_center,
 
 		CASE
 			WHEN t1.withholding_amount > 0

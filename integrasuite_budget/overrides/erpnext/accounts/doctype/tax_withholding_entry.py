@@ -41,16 +41,36 @@ def custom_should_apply_tds(self):
         and self.doc.voucher_type in ALLOWED_VOUCHER_TYPES
     )
 
+def custom_setup_party_info(self):
+    for row in self.doc.get("accounts"):
+        if row.party_type in ("Customer", "Supplier", "Employee") and row.party:
+            if self.party and (
+                row.party != self.party or row.party_type != self.party_type
+            ):
+                self.has_multiple_parties = True
+
+            if not self.party:
+                self.party = row.party
+                self.party_type = row.party_type
+                self.party_account = row.account
+                self.party_row = row
+
+        if row.get("is_tax_withholding_account"):
+            self.existing_tds_rows.append(row)
+
+    if self.party_type:
+        self._setup_direction_fields()
 def custom_create_base_entry(self, source_entry, category, tax_rate, default_obj):
     entry = {}
 
     if default_obj:
         entry.update(default_obj)
 
-    cost_center = (
-        self.doc.get("cost_center")
-        or erpnext.get_default_cost_center(self.doc.company)
-    )
+    # cost_center = (
+    #     self.doc.get("cost_center")
+    #     or erpnext.get_default_cost_center(self.doc.company)
+    # )
+    cost_center = self.party_row.get("cost_center") if self.party_row else None
 
     entry.update(
         {
@@ -266,6 +286,8 @@ def custom_create_or_update_tds_row(self, account_head, tax_amount):
 
     tax_amount = flt(tax_amount, self.precision)
     tax_amount_in_account_currency = flt(tax_amount / exchange_rate, self.precision)
+    cost_center = self.party_row.get("cost_center") if self.party_row else None
+    # frappe.throw(str(cost_center))
 
     tax_row = None
     for row in self.doc.get("accounts"):
@@ -281,8 +303,7 @@ def custom_create_or_update_tds_row(self, account_head, tax_amount):
                 "account_currency": account_currency,
                 "exchange_rate": exchange_rate,
                 "branch": self.doc.get("branch"),
-                "cost_center": self.doc.get("cost_center")
-                or erpnext.get_default_cost_center(self.doc.company),
+                "cost_center": cost_center,
                 "credit": 0,
                 "credit_in_account_currency": 0,
                 "debit": 0,
@@ -297,7 +318,7 @@ def custom_create_or_update_tds_row(self, account_head, tax_amount):
             {
                 "tds_account": account_head,
                 "branch": self.doc.get("branch"),
-                "cost_center": self.doc.get("cost_center"),
+                "cost_center": cost_center,
                 "debit": tax_amount,
                 "debit_in_account_currency": tax_amount_in_account_currency,
                 "credit": 0,
@@ -309,7 +330,7 @@ def custom_create_or_update_tds_row(self, account_head, tax_amount):
             {
                 "tds_account": account_head,
                 "branch": self.doc.get("branch"),
-                "cost_center": self.doc.get("cost_center"),
+                "cost_center": cost_center,
                 "credit": tax_amount,
                 "credit_in_account_currency": tax_amount_in_account_currency,
                 "debit": 0,
@@ -319,7 +340,7 @@ def custom_create_or_update_tds_row(self, account_head, tax_amount):
 
     self._cleanup_duplicate_tds_rows(tax_row)
 
-
+JournalTaxWithholding._setup_party_info = custom_setup_party_info
 JournalTaxWithholding._should_apply_tds = custom_should_apply_tds
 JournalTaxWithholding._setup_direction_fields = custom_setup_direction_fields
 

@@ -164,6 +164,31 @@ erpnext.journal_entry.remove_tax_withholding = function (frm) {
                         tds_amount
                 );
             }
+        }else if (party_row.party_type === "Employee") {
+            
+            counter_row = frm.doc.accounts.find(
+                row =>
+                    row.account &&
+                    !row.party_type &&
+                    flt(row.credit) > 0
+            );
+
+            if (counter_row) {
+                frappe.model.set_value(
+                    counter_row.doctype,
+                    counter_row.name,
+                    "credit",
+                    flt(counter_row.credit) + tds_amount
+                );
+
+                frappe.model.set_value(
+                    counter_row.doctype,
+                    counter_row.name,
+                    "credit_in_account_currency",
+                    flt(counter_row.credit_in_account_currency) +
+                        tds_amount
+                );
+            }
         }
     }
 

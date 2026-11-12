@@ -101,7 +101,7 @@ frappe.ui.form.on('TDS Remittance Item', {
         if (frm.doc.payment_status === "Paid") {
             // show TDS Receipt Update
             frappe.call({
-                method: "integrasuite.budget.doctype.tds_remittance.tds_remittance.get_tds_receipt_update",
+                method: "integrasuite_budget.budget.doctype.tds_remittance.tds_remittance.get_tds_receipt_update",
                 args: {
                     tds_remittance: frm.docname
                 },
@@ -116,7 +116,7 @@ frappe.ui.form.on('TDS Remittance Item', {
         } else if (frm.doc.payment_status === "Unpaid") {
             frm.add_custom_button(__('Update TDS Receipt Details'), () => {
                 frappe.model.open_mapped_doc({
-                    method: "integrasuite.budget.doctype.tds_remittance.tds_remittance.create_tds_receipt_update",
+                    method: "integrasuite_budget.budget.doctype.tds_remittance.tds_remittance.create_tds_receipt_update",
                     frm: cur_frm,
                     callback: (r) => {}
                 });

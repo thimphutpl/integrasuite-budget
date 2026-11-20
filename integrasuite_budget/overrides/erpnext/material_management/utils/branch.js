@@ -1,9 +1,15 @@
-// Branch custom field (see custom_fields.py): only offer enabled branches of the
+// Branch custom field (see utils/custom_field.py): only offer enabled branches of the
 // document's company, and copy the branch's cost center into the header Cost Center.
 // ERPNext's own cost_center handler then copies it to every item row.
 
 // Wrapped so its declarations don't clash when several of these forms load the file.
 (function () {
+    // This file is loaded into each form below, and Frappe never drops form handlers, so register
+    // them only the first time or every handler would run once per form loaded so far.
+    frappe.provide("integrasuite_budget");
+    if (integrasuite_budget._branch_handlers_added) return;
+    integrasuite_budget._branch_handlers_added = true;
+
     // Item link fields that mean the document was made from an earlier step of MR -> PO -> PR -> PI.
     // Branch then comes from that document and is locked.
     const SOURCE_LINKS = {
@@ -23,7 +29,7 @@
 
     // Stock Entry rows start with the company default cost center, so ERPNext's "fill empty rows"
     // never applies. Point every row at the header's (the server enforces the same on validate,
-    // see stock/doctype/stock_entry.py).
+    // see stock/stock_entry.py).
     function sync_stock_entry_rows(frm) {
         if (frm.doctype !== "Stock Entry" || !frm.doc.cost_center || frm.doc.docstatus !== 0) return;
 
@@ -53,7 +59,7 @@
                 // A Stock Entry made from an MR arrives with the header set but rows on the default.
                 else if (frm.is_new()) sync_stock_entry_rows(frm);
 
-                // Cost Center is always read-only (property_setters.py); only Branch needs locking here.
+                // Cost Center is always read-only (buying/ and stock/ property_setter.py); only Branch needs locking here.
                 // Never lock an empty Branch, or the mandatory field could not be filled in.
                 frm.set_df_property("branch", "read_only", is_from_source(frm) && frm.doc.branch ? 1 : 0);
             },

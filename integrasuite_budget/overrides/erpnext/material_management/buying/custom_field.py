@@ -1,13 +1,9 @@
-from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+"""Buying (MR -> PO -> PR -> PI) Custom Fields, created or updated after every migrate."""
 
-BRANCH_FIELD = {
-    "fieldname": "branch",
-    "label": "Branch",
-    "fieldtype": "Link",
-    "options": "Branch",
-    "reqd": 1,
-    "insert_after": "company",
-}
+from integrasuite_budget.overrides.erpnext.material_management.utils.custom_field import (
+    BRANCH_FIELD,
+    add_custom_fields,
+)
 
 # PO, PR and PI already have a header Cost Center; MR gets the same field so it maps across.
 MR_COST_CENTER_FIELD = {
@@ -19,8 +15,7 @@ MR_COST_CENTER_FIELD = {
     "insert_after": "branch",
 }
 
-# Liquidated Damages: LD days = Actual Receipt Date - required (schedule) date, see
-# accounts/doctype/purchase_invoice.py.
+# Liquidated Damages: LD days = Actual Receipt Date - required (schedule) date, see liquidated_damages.py.
 PR_ACTUAL_RECEIPT_DATE_FIELD = {
     "fieldname": "actual_receipt_date",
     "label": "Actual Receipt Date",
@@ -54,11 +49,9 @@ CUSTOM_FIELDS = {
     "Purchase Order": [BRANCH_FIELD],
     "Purchase Receipt": [BRANCH_FIELD, PR_ACTUAL_RECEIPT_DATE_FIELD],
     "Purchase Invoice": [BRANCH_FIELD, *PI_LD_FIELDS],
-    # Stock Entry already has a header Cost Center (moved to the Details tab in property_setters.py).
-    "Stock Entry": [{**BRANCH_FIELD, "insert_after": "stock_entry_type"}],
 }
 
 
-def add_custom_fields():
-    """Create the Custom Fields above, or update them to match if they already exist."""
-    create_custom_fields(CUSTOM_FIELDS, update=True)
+def apply_custom_fields():
+    """after_migrate: create the buying Custom Fields above."""
+    add_custom_fields(CUSTOM_FIELDS)

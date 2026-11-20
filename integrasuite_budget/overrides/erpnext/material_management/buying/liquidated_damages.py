@@ -1,12 +1,25 @@
+"""Liquidated Damages (LD): a penalty on the Purchase Invoice for a late Purchase Receipt.
+
+LD days = PR Actual Receipt Date - required (schedule) date. The LD amount is posted through
+ERPNext's Write Off section of the Purchase Invoice.
+Fields: buying/custom_field.py and buying/property_setter.py. Browser side: liquidated_damages.js.
+"""
+
 import frappe
 from frappe import _
 from frappe.utils import cint, date_diff, flt
 
 from erpnext.accounts.doctype.purchase_invoice.purchase_invoice import PurchaseInvoice
 from erpnext.accounts.utils import get_account_currency
+from erpnext.stock.doctype.purchase_receipt.purchase_receipt import (
+    make_purchase_invoice as erpnext_make_purchase_invoice,
+)
+from integrasuite_budget.overrides.erpnext.material_management.buying.supplier_invoice_no import (
+    set_bill_no_from_purchase_receipt,
+)
 
-# Liquidated Damages (LD): 0.1% of the Purchase Receipt grand total per day of delay,
-# capped at 100 days (10%). Keep in sync with accounts/js/purchase_invoice.js.
+# 0.1% of the Purchase Receipt grand total per day of delay, capped at 100 days (10%).
+# Keep in sync with liquidated_damages.js.
 LD_RATE_PER_DAY = 0.1
 LD_MAX_DAYS = 100
 
@@ -124,30 +137,31 @@ def set_ld_from_purchase_receipt(purchase_receipt, invoice):
     invoice.write_off_cost_center = invoice.get("write_off_cost_center") or cost_center
 
 
-def get_supplier_invoice_no_from_receipts(invoice):
-    """Supplier Invoice No from the Purchase Receipts the invoice's items come from.
+def validate_actual_receipt_date(doc, method=None):
+    """doc_events validate (Purchase Receipt): Actual Receipt Date is mandatory except on returns.
 
-    PR's supplier_delivery_note is relabelled "Supplier Invoice No" (see property_setters.py).
-    Several receipts with different numbers are joined with ", ". Returns "" if none is set.
+    The field's mandatory_depends_on only works in the browser, so it is enforced here too.
     """
-    receipts = list(dict.fromkeys(d.purchase_receipt for d in invoice.get("items") if d.purchase_receipt))
-    if not receipts:
-        return ""
-
-    numbers = frappe.get_all(
-        "Purchase Receipt",
-        filters={"name": ["in", receipts], "supplier_delivery_note": ["is", "set"]},
-        pluck="supplier_delivery_note",
-    )
-    return ", ".join(dict.fromkeys(n.strip() for n in numbers if n and n.strip()))
+    if not doc.is_return and not doc.get("actual_receipt_date"):
+        frappe.throw(_("Actual Receipt Date is mandatory"), frappe.MandatoryError)
 
 
-def set_bill_no_from_purchase_receipt(doc, method=None):
-    """doc_events validate: Supplier Invoice No comes from the linked Purchase Receipt(s).
+@frappe.whitelist()
+def make_purchase_invoice(source_name, target_doc=None, args=None):
+    """ERPNext's PR -> PI mapping, plus Supplier Invoice No and Liquidated Damages for a late receipt.
 
-    When the PR has one it is fixed (read-only in js/purchase_invoice.js); otherwise the user's
-    value is kept.
+    Replaces erpnext...purchase_receipt.make_purchase_invoice via override_whitelisted_methods.
     """
-    supplier_invoice_no = get_supplier_invoice_no_from_receipts(doc)
-    if supplier_invoice_no:
-        doc.bill_no = supplier_invoice_no
+    invoice = erpnext_make_purchase_invoice(source_name, target_doc, args)
+
+    set_bill_no_from_purchase_receipt(invoice)
+
+    set_ld_from_purchase_receipt(frappe.get_doc("Purchase Receipt", source_name), invoice)
+
+    if invoice.get("ld_days"):
+        # Outstanding amount and the payment schedule both net off the write off amount
+        invoice.run_method("calculate_taxes_and_totals")
+        invoice.set("payment_schedule", [])
+        invoice.set_payment_schedule()
+
+    return invoice

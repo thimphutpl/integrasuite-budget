@@ -23,38 +23,47 @@ add_to_apps_screen = [
 ]
 
 
+# Our ERPNext buying / selling / stock customizations (Python module path and JS asset path).
+# Leading underscore: Frappe reads every other top-level name in this file as a hook.
+_MM = "integrasuite_budget.overrides.erpnext.material_management"
+_MM_JS = "overrides/erpnext/material_management"
+
 override_doctype_class = {
     "Tax Withholding Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.tax_withholding_entry.CustomTaxWithholdingEntry",
     "Cost Center": "integrasuite_budget.overrides.erpnext.accounts.doctype.cost_center.CustomCostCenter",
     "GL Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.gl_entry.CustomGLEntry",
-    "Purchase Invoice": "integrasuite_budget.overrides.erpnext.accounts.doctype.purchase_invoice.CustomPurchaseInvoice",
+    "Purchase Invoice": f"{_MM}.buying.liquidated_damages.CustomPurchaseInvoice",
 }
 doctype_js = {
     "Journal Entry": "overrides/erpnext/accounts/js/journal_entry.js",
-    "Branch": "overrides/erpnext/setup/js/branch.js",
-    # hide_buttons.js defines the helper the file after it uses, so it must come first.
-    "Material Request": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/stock/js/material_request.js"],
-    "Purchase Order": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/buying/js/purchase_order.js"],
-    "Purchase Receipt": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/stock/js/purchase_receipt.js"],
-    "Purchase Invoice": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/accounts/js/purchase_invoice.js"],
-    "Stock Entry": ["overrides/erpnext/js/hide_buttons.js", "overrides/erpnext/js/branch.js", "overrides/erpnext/stock/js/stock_entry.js"],
+    "Branch": f"{_MM_JS}/buying/branch.js",
+    # utils/hide_buttons.js defines the helper property_setter.js uses, so it must come first.
+    "Material Request": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/buying/property_setter.js"],
+    "Purchase Order": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/buying/property_setter.js"],
+    "Purchase Receipt": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/buying/property_setter.js"],
+    "Purchase Invoice": [
+        f"{_MM_JS}/utils/hide_buttons.js",
+        f"{_MM_JS}/utils/branch.js",
+        f"{_MM_JS}/buying/property_setter.js",
+        f"{_MM_JS}/buying/liquidated_damages.js",
+        f"{_MM_JS}/buying/supplier_invoice_no.js",
+    ],
+    "Stock Entry": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/stock/property_setter.js"],
 }
 
 after_migrate = [
-    "integrasuite_budget.overrides.erpnext.buying.sidebar.hide_sidebar_items",
-    "integrasuite_budget.overrides.erpnext.property_setters.hide_fields",
-    "integrasuite_budget.overrides.erpnext.custom_fields.add_custom_fields",
-    "integrasuite_budget.overrides.erpnext.property_setters.make_fields_read_only",
-    "integrasuite_budget.overrides.erpnext.property_setters.make_fields_required",
-    "integrasuite_budget.overrides.erpnext.property_setters.set_field_properties",
-    "integrasuite_budget.overrides.erpnext.property_setters.move_stock_entry_accounting_dimensions",
+    f"{_MM}.buying.sidebar.hide_sidebar_items",
+    f"{_MM}.buying.custom_field.apply_custom_fields",
+    f"{_MM}.stock.custom_field.apply_custom_fields",
+    f"{_MM}.buying.property_setter.apply_property_setters",
+    f"{_MM}.stock.property_setter.apply_property_setters",
 ]
 
 
 
 override_whitelisted_methods = {
     "erpnext.setup.doctype.party_type.party_type.get_party_type":"integrasuite_budget.overrides.erpnext.accounts.doctype.party_type.get_party_type",
-    "erpnext.stock.doctype.purchase_receipt.purchase_receipt.make_purchase_invoice": "integrasuite_budget.overrides.erpnext.stock.doctype.purchase_receipt.make_purchase_invoice",
+    "erpnext.stock.doctype.purchase_receipt.purchase_receipt.make_purchase_invoice": f"{_MM}.buying.liquidated_damages.make_purchase_invoice",
 }
 
 
@@ -198,13 +207,13 @@ override_whitelisted_methods = {
 
 doc_events = {
     "Purchase Receipt": {
-        "validate": "integrasuite_budget.overrides.erpnext.stock.doctype.purchase_receipt.validate_actual_receipt_date",
+        "validate": f"{_MM}.buying.liquidated_damages.validate_actual_receipt_date",
     },
     "Purchase Invoice": {
-        "validate": "integrasuite_budget.overrides.erpnext.accounts.doctype.purchase_invoice.set_bill_no_from_purchase_receipt",
+        "validate": f"{_MM}.buying.supplier_invoice_no.set_bill_no_from_purchase_receipt",
     },
     "Stock Entry": {
-        "validate": "integrasuite_budget.overrides.erpnext.stock.doctype.stock_entry.set_cost_center_from_branch",
+        "validate": f"{_MM}.stock.stock_entry.set_cost_center_from_branch",
     },
 }
 

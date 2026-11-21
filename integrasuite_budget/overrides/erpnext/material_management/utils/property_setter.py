@@ -26,6 +26,23 @@ def hide_fields(fields):
         set_field_property(doctype, fieldname, "hidden", 1, "Check")
 
 
+def hide_company_fields(doctypes):
+    """Hide the mandatory Company field on these doctypes (single-company site).
+
+    Frappe refuses a field that is hidden and mandatory without a default whenever the doctype is
+    validated again (adding a Workflow, Customize Form, a new Custom Field), so the site's default
+    company is set as the field's default first. Until a default company exists (a fresh site
+    before the setup wizard) nothing is hidden; the next migrate applies it.
+    """
+    company = frappe.db.get_single_value("Global Defaults", "default_company")
+    if not company:
+        return
+
+    for doctype in doctypes:
+        set_field_property(doctype, "company", "default", company, "Text")
+        set_field_property(doctype, "company", "hidden", 1, "Check")
+
+
 def make_fields_read_only(fields):
     """Make fields read-only, given as (doctype, fieldname)."""
     for doctype, fieldname in fields:

@@ -1,6 +1,7 @@
 """Buying (MR -> PO -> PR -> PI) changes to ERPNext's standard fields, applied after every migrate."""
 
 from integrasuite_budget.overrides.erpnext.material_management.utils.property_setter import (
+    hide_company_fields,
     hide_fields,
     make_fields_read_only,
     make_fields_required,
@@ -16,16 +17,15 @@ HIDDEN_FIELDS = [
     ("Purchase Order", "project"),
     ("Purchase Receipt", "project"),
     ("Purchase Invoice", "project"),
-    # Single-company site: ERPNext hides Company itself (erpnext.hide_company), but only after the
-    # form is drawn, so it blinked and Branch (inserted after it) jumped. Hiding it in the meta
-    # avoids that. If a second company is added, remove these AND delete their Property Setters
-    # (also Stock Entry's in stock/property_setter.py).
-    ("Material Request", "company"),
-    ("Purchase Order", "company"),
-    ("Purchase Receipt", "company"),
-    ("Purchase Invoice", "company"),
     ("Buying Settings", "allow_negative_rates_for_items"),
 ]
+
+# Single-company site: ERPNext hides Company itself (erpnext.hide_company), but only after the
+# form is drawn, so it blinked and Branch (inserted after it) jumped. Hiding it in the meta
+# avoids that; hide_company_fields also gives it the default company as its default, which Frappe
+# requires for a hidden mandatory field. If a second company is added, remove these AND delete
+# their Property Setters (also Stock Entry's in stock/property_setter.py).
+COMPANY_HIDDEN_DOCTYPES = ["Material Request", "Purchase Order", "Purchase Receipt", "Purchase Invoice"]
 
 # The header Cost Center is filled from the Branch (see utils/branch.js), so users cannot edit it.
 # MR's header Cost Center is our own Custom Field and is made read-only there instead.
@@ -63,6 +63,7 @@ FIELD_PROPERTIES = [
 def apply_property_setters():
     """after_migrate: apply the buying field changes above."""
     hide_fields(HIDDEN_FIELDS)
+    hide_company_fields(COMPANY_HIDDEN_DOCTYPES)
     make_fields_read_only(READ_ONLY_FIELDS)
     make_fields_required(REQUIRED_FIELDS)
     make_fields_required_when(CONDITIONALLY_REQUIRED_FIELDS)

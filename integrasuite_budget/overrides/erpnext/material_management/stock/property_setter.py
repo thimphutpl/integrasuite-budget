@@ -1,6 +1,7 @@
 """Stock changes to ERPNext's standard fields, applied after every migrate."""
 
 from integrasuite_budget.overrides.erpnext.material_management.utils.property_setter import (
+    hide_company_fields,
     hide_fields,
     make_fields_read_only,
     move_fields_before,
@@ -10,11 +11,12 @@ from integrasuite_budget.overrides.erpnext.material_management.utils.property_se
 # Fields we hide, as (doctype, fieldname).
 HIDDEN_FIELDS = [
     ("Stock Entry", "project"),
-    # Single-company site, see the Company note in buying/property_setter.py.
-    ("Stock Entry", "company"),
     ("Item", "allow_negative_stock"),
     ("Stock Settings", "allow_negative_stock"),
 ]
+
+# Single-company site, see the Company note in buying/property_setter.py.
+COMPANY_HIDDEN_DOCTYPES = ["Stock Entry"]
 
 # The header Cost Center is filled from the Branch (see utils/branch.js), so users cannot edit it.
 READ_ONLY_FIELDS = [
@@ -39,6 +41,7 @@ SE_ACCOUNTING_DIMENSIONS_BEFORE = "reference_section"
 def apply_property_setters():
     """after_migrate: apply the stock field changes above."""
     hide_fields(HIDDEN_FIELDS)
+    hide_company_fields(COMPANY_HIDDEN_DOCTYPES)
     make_fields_read_only(READ_ONLY_FIELDS)
     set_field_properties(FIELD_PROPERTIES)
     move_fields_before("Stock Entry", SE_ACCOUNTING_DIMENSION_FIELDS, SE_ACCOUNTING_DIMENSIONS_BEFORE)

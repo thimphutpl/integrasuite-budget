@@ -33,6 +33,7 @@ override_doctype_class = {
     "Cost Center": "integrasuite_budget.overrides.erpnext.accounts.doctype.cost_center.CustomCostCenter",
     "GL Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.gl_entry.CustomGLEntry",
     "Purchase Invoice": f"{_MM}.buying.liquidated_damages.CustomPurchaseInvoice",
+    "Stock Entry": f"{_MM}.stock.purchase_expense_account.CustomStockEntry",
 }
 doctype_js = {
     "Journal Entry": "overrides/erpnext/accounts/js/journal_entry.js",

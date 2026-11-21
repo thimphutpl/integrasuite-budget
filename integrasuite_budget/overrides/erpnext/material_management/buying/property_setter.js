@@ -17,5 +17,6 @@ integrasuite_budget.hide_buttons("Purchase Receipt", {
 });
 
 integrasuite_budget.hide_buttons("Purchase Invoice", {
+    labels: [__("Payment Request")],
     groups: [__("Get Items From")],
 });

@@ -17,6 +17,9 @@ HIDDEN_FIELDS = [
     ("Purchase Order", "project"),
     ("Purchase Receipt", "project"),
     ("Purchase Invoice", "project"),
+    ("Purchase Invoice", "tax_category"),
+    ("Purchase Invoice", "shipping_rule"),
+    ("Purchase Invoice", "incoterm"),
     ("Buying Settings", "allow_negative_rates_for_items"),
 ]
 

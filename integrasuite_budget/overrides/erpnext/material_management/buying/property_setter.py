@@ -42,8 +42,6 @@ READ_ONLY_FIELDS = [
 REQUIRED_FIELDS = [
     # Header Required By; ERPNext only requires it per item, and copies the header date to new rows
     ("Material Request", "schedule_date"),
-    ("Purchase Order", "set_warehouse"),
-    ("Purchase Receipt", "set_warehouse"),
     # Copied to the Purchase Invoice's Supplier Invoice No (bill_no), see supplier_invoice_no.py
     ("Purchase Receipt", "supplier_delivery_note"),
 ]

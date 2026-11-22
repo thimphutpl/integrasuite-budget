@@ -54,6 +54,7 @@ doctype_js = {
 
 after_migrate = [
     f"{_MM}.buying.sidebar.hide_sidebar_items",
+    f"{_MM}.buying.workspace.fix_report_links",
     f"{_MM}.buying.custom_field.apply_custom_fields",
     f"{_MM}.stock.custom_field.apply_custom_fields",
     f"{_MM}.buying.property_setter.apply_property_setters",

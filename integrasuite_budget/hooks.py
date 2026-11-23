@@ -338,3 +338,4 @@ doc_events = {
 # ignore_translatable_strings_from = []
 
 import integrasuite_budget.overrides.erpnext.controller.budget_controller
+import integrasuite_budget.overrides.erpnext.accounts.doctype.tax_withholding_category

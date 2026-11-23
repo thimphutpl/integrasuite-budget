@@ -14,6 +14,4 @@ def custom_get_tax_id_for_party(party_type, party):
     return _original_get_tax_id_for_party(party_type, party)
 
 
-tax_withholding_category.get_tax_id_for_party = (
-    custom_get_tax_id_for_party
-)
+tax_withholding_category.get_tax_id_for_party = custom_get_tax_id_for_party

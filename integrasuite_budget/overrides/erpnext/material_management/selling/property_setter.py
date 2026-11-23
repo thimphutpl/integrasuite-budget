@@ -1,6 +1,9 @@
 """Selling changes to ERPNext's standard fields, applied after every migrate."""
 
-from integrasuite_budget.overrides.erpnext.material_management.utils.property_setter import hide_fields
+from integrasuite_budget.overrides.erpnext.material_management.utils.property_setter import (
+    hide_fields,
+    make_fields_read_only,
+)
 
 # Fields we hide, as (doctype, fieldname). Hiding a Tab/Section Break hides everything in it.
 HIDDEN_FIELDS = [
@@ -15,9 +18,16 @@ HIDDEN_FIELDS = [
     ("Sales Order", "tax_category"),
     ("Sales Order", "shipping_rule"),
     ("Sales Order", "incoterm"),  # Named Place depends on Incoterm, so it stays hidden too
+    ("Sales Order", "project"),  # Accounting Dimensions section: only Cost Center is kept
+]
+
+# The header Cost Center is filled from the Branch (see utils/branch.js), so users cannot edit it.
+READ_ONLY_FIELDS = [
+    ("Sales Order", "cost_center"),
 ]
 
 
 def apply_property_setters():
     """after_migrate: apply the selling field changes above."""
     hide_fields(HIDDEN_FIELDS)
+    make_fields_read_only(READ_ONLY_FIELDS)

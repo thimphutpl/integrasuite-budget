@@ -56,7 +56,7 @@ class TDSRemittance(AccountsController):
 		for d in self.items:
 			self.total_tds 		+= flt(d.tds_amount)
 			self.total_amount 	+= flt(d.bill_amount)
-
+	@staticmethod
 	def check_clearance_date(dt, dn):
 		doc = frappe.get_doc(dt, dn)
 		if doc.clearance_date:

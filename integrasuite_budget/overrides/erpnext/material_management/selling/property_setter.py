@@ -18,6 +18,14 @@ HIDDEN_FIELDS = [
     ("Sales Order", "tax_category"),
     ("Sales Order", "shipping_rule"),
     ("Sales Order", "incoterm"),  # Named Place depends on Incoterm, so it stays hidden too
+    ("Delivery Note", "address_and_contact_tab"),  # Address & Contact tab
+    ("Sales Invoice", "contact_and_address_tab"),  # Address & Contact tab (named the other way round)
+    ("Delivery Note", "tax_category"),
+    ("Delivery Note", "shipping_rule"),
+    ("Delivery Note", "incoterm"),
+    ("Sales Invoice", "tax_category"),
+    ("Sales Invoice", "shipping_rule"),
+    ("Sales Invoice", "incoterm"),
     # Accounting Dimensions section: only Cost Center (from the Branch) is kept
     ("Sales Order", "project"),
     ("Delivery Note", "project"),

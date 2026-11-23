@@ -30,10 +30,15 @@
         sync_item_rows(frm);
     }
 
-    // Doctypes whose item rows start with the item / company default cost center, so ERPNext's
-    // "fill empty rows" never applies. Their rows always follow the header's (the server enforces
-    // the same on validate, see utils/branch.py). Maps the doctype to its item row doctype.
+    // ERPNext fills each item row with the item / company default cost center as soon as an item is
+    // picked, so its "copy the header into empty rows" never applies. The rows always follow the
+    // header's instead (the server enforces the same on validate, see utils/branch.py).
+    // Maps each branch doctype to its item row doctype.
     const ROW_SYNC_DOCTYPES = {
+        "Material Request": "Material Request Item",
+        "Purchase Order": "Purchase Order Item",
+        "Purchase Receipt": "Purchase Receipt Item",
+        "Purchase Invoice": "Purchase Invoice Item",
         "Stock Entry": "Stock Entry Detail",
         "Sales Order": "Sales Order Item",
         "Delivery Note": "Delivery Note Item",
@@ -43,7 +48,8 @@
     function sync_item_rows(frm) {
         if (!ROW_SYNC_DOCTYPES[frm.doctype] || !frm.doc.cost_center || frm.doc.docstatus !== 0) return;
 
-        for (const row of frm.doc.items || []) {
+        // Tax rows too: they come from the tax template with its own (company default) cost center.
+        for (const row of [...(frm.doc.items || []), ...(frm.doc.taxes || [])]) {
             if (row.cost_center !== frm.doc.cost_center) {
                 frappe.model.set_value(row.doctype, row.name, "cost_center", frm.doc.cost_center);
             }
@@ -66,7 +72,7 @@
             refresh(frm) {
                 // A mapped document whose source had no cost center yet still gets the branch's one.
                 if (frm.is_new() && frm.doc.branch && !frm.doc.cost_center) set_cost_center_from_branch(frm);
-                // A Stock Entry made from an MR arrives with the header set but rows on the default.
+                // A mapped document (e.g. a Stock Entry made from an MR) can arrive with the header set but rows on the default.
                 else if (frm.is_new()) sync_item_rows(frm);
 
                 // Cost Center is always read-only (buying/, stock/ and selling/ property_setter.py); only Branch needs locking here.

@@ -51,8 +51,8 @@ doctype_js = {
     ],
     "Stock Entry": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/stock/property_setter.js"],
     "Sales Order": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/selling/property_setter.js"],
-    "Delivery Note": [f"{_MM_JS}/utils/branch.js"],
-    "Sales Invoice": [f"{_MM_JS}/utils/branch.js"],
+    "Delivery Note": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/selling/property_setter.js"],
+    "Sales Invoice": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/selling/property_setter.js"],
 }
 
 after_migrate = [
@@ -213,11 +213,23 @@ override_whitelisted_methods = {
 # Hook on document methods and events
 
 doc_events = {
+    "Material Request": {
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
+    "Purchase Order": {
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
     "Purchase Receipt": {
-        "validate": f"{_MM}.buying.liquidated_damages.validate_actual_receipt_date",
+        "validate": [
+            f"{_MM}.utils.branch.set_cost_center_from_branch",
+            f"{_MM}.buying.liquidated_damages.validate_actual_receipt_date",
+        ],
     },
     "Purchase Invoice": {
-        "validate": f"{_MM}.buying.supplier_invoice_no.set_bill_no_from_purchase_receipt",
+        "validate": [
+            f"{_MM}.utils.branch.set_cost_center_from_branch",
+            f"{_MM}.buying.supplier_invoice_no.set_bill_no_from_purchase_receipt",
+        ],
     },
     "Stock Entry": {
         "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",

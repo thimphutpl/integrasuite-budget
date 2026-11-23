@@ -50,6 +50,7 @@ doctype_js = {
         f"{_MM_JS}/buying/supplier_invoice_no.js",
     ],
     "Stock Entry": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/stock/property_setter.js"],
+    "Sales Order": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/selling/property_setter.js"],
 }
 
 after_migrate = [
@@ -59,6 +60,7 @@ after_migrate = [
     f"{_MM}.stock.custom_field.apply_custom_fields",
     f"{_MM}.buying.property_setter.apply_property_setters",
     f"{_MM}.stock.property_setter.apply_property_setters",
+    f"{_MM}.selling.property_setter.apply_property_setters",
 ]
 
 

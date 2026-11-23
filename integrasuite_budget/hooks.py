@@ -51,6 +51,8 @@ doctype_js = {
     ],
     "Stock Entry": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/stock/property_setter.js"],
     "Sales Order": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/selling/property_setter.js"],
+    "Delivery Note": [f"{_MM_JS}/utils/branch.js"],
+    "Sales Invoice": [f"{_MM_JS}/utils/branch.js"],
 }
 
 after_migrate = [
@@ -221,6 +223,12 @@ doc_events = {
         "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
     },
     "Sales Order": {
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
+    "Delivery Note": {
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
+    "Sales Invoice": {
         "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
     },
 }

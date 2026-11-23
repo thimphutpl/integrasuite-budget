@@ -10,13 +10,16 @@
     if (integrasuite_budget._branch_handlers_added) return;
     integrasuite_budget._branch_handlers_added = true;
 
-    // Item link fields that mean the document was made from an earlier step of MR -> PO -> PR -> PI.
+    // Item link fields that mean the document was made from an earlier step of MR -> PO -> PR -> PI
+    // or SO -> DN -> SI.
     // Branch then comes from that document and is locked.
     const SOURCE_LINKS = {
         "Purchase Order": ["material_request"],
         "Purchase Receipt": ["purchase_order", "material_request"],
         "Purchase Invoice": ["purchase_order", "purchase_receipt"],
         "Stock Entry": ["material_request"],
+        "Delivery Note": ["against_sales_order"],
+        "Sales Invoice": ["sales_order", "delivery_note"],
     };
 
     async function set_cost_center_from_branch(frm) {
@@ -33,6 +36,8 @@
     const ROW_SYNC_DOCTYPES = {
         "Stock Entry": "Stock Entry Detail",
         "Sales Order": "Sales Order Item",
+        "Delivery Note": "Delivery Note Item",
+        "Sales Invoice": "Sales Invoice Item",
     };
 
     function sync_item_rows(frm) {
@@ -50,7 +55,7 @@
         return (frm.doc.items || []).some((item) => links.some((link) => item[link]));
     }
 
-    for (const doctype of ["Material Request", "Purchase Order", "Purchase Receipt", "Purchase Invoice", "Stock Entry", "Sales Order"]) {
+    for (const doctype of ["Material Request", "Purchase Order", "Purchase Receipt", "Purchase Invoice", "Stock Entry", "Sales Order", "Delivery Note", "Sales Invoice"]) {
         frappe.ui.form.on(doctype, {
             setup(frm) {
                 frm.set_query("branch", () => ({

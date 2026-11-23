@@ -18,12 +18,17 @@ HIDDEN_FIELDS = [
     ("Sales Order", "tax_category"),
     ("Sales Order", "shipping_rule"),
     ("Sales Order", "incoterm"),  # Named Place depends on Incoterm, so it stays hidden too
-    ("Sales Order", "project"),  # Accounting Dimensions section: only Cost Center is kept
+    # Accounting Dimensions section: only Cost Center (from the Branch) is kept
+    ("Sales Order", "project"),
+    ("Delivery Note", "project"),
+    ("Sales Invoice", "project"),
 ]
 
 # The header Cost Center is filled from the Branch (see utils/branch.js), so users cannot edit it.
 READ_ONLY_FIELDS = [
     ("Sales Order", "cost_center"),
+    ("Delivery Note", "cost_center"),
+    ("Sales Invoice", "cost_center"),
 ]
 
 

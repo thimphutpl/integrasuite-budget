@@ -5,7 +5,7 @@ def set_cost_center_from_branch(doc, method=None):
     """Book a document to its Branch's cost center: the header and every item row.
 
     validate hook for doctypes whose item rows ERPNext fills with the item / company default cost
-    center (Stock Entry, Sales Order). ERPNext only copies the header into empty rows, so those
+    center (Stock Entry, Sales Order, Delivery Note, Sales Invoice). ERPNext only copies the header into empty rows, so those
     rows would never get the branch's one. Running on validate also covers API and imports.
     """
     if not doc.branch:

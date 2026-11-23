@@ -5,9 +5,14 @@ from integrasuite_budget.overrides.erpnext.material_management.utils.custom_fiel
     add_custom_fields,
 )
 
+# Company is at the very top of these forms, so Branch goes under Customer instead. Its fieldname is
+# the same on all three, so ERPNext copies it along SO -> DN -> SI (and to returns).
+SELLING_BRANCH_FIELD = {**BRANCH_FIELD, "insert_after": "customer"}
+
 CUSTOM_FIELDS = {
-    # Sales Order shows Company at the very top, so Branch goes under Customer instead.
-    "Sales Order": [{**BRANCH_FIELD, "insert_after": "customer"}],
+    "Sales Order": [SELLING_BRANCH_FIELD],
+    "Delivery Note": [SELLING_BRANCH_FIELD],
+    "Sales Invoice": [SELLING_BRANCH_FIELD],
 }
 
 

@@ -161,20 +161,7 @@ def custom_calculate_net_total(self):
 def custom_update_tax_rows(self):
     """Update TDS rows using the withholding amounts calculated for this document."""
 
-    frappe.log_error(
-    title="TDS Source Entries",
-    message=frappe.as_json([
-        {
-            "name": row.name,
-            "taxable_amount": row.get("taxable_amount"),
-            "tax_rate": row.get("tax_rate"),
-            "withholding_amount": row.get("withholding_amount"),
-            "status": row.get("status"),
-        }
-        for row in self.doc.get("tax_withholding_entries")
-    ], indent=2),
-)
-
+ 
 
     if not self._should_apply_tds():
         self._cleanup_duplicate_tds_rows(None)
@@ -291,7 +278,15 @@ def custom_create_or_update_tds_row(self, account_head, tax_amount):
     from erpnext.accounts.utils import get_account_currency
     from erpnext.setup.utils import get_exchange_rate as _get_exchange_rate
 
+    if not account_head:
+        frappe.throw(
+            "TDS Account is missing for Tax Withholding Category: {0}".format(
+                self.doc.tax_withholding_category
+            )
+        )
+    # frappe.throw("get_account_currency:"+str(get_account_currency))
     account_currency = get_account_currency(account_head)
+
     company_currency = frappe.get_cached_value("Company", self.doc.company, "default_currency")
     exchange_rate = _get_exchange_rate(account_currency, company_currency, self.doc.posting_date)
 

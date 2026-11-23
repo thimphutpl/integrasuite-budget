@@ -1,6 +1,7 @@
 """Selling changes to ERPNext's standard fields, applied after every migrate."""
 
 from integrasuite_budget.overrides.erpnext.material_management.utils.property_setter import (
+    hide_company_fields,
     hide_fields,
     make_fields_read_only,
 )
@@ -32,6 +33,9 @@ HIDDEN_FIELDS = [
     ("Sales Invoice", "project"),
 ]
 
+# Single-company site, see the Company note in buying/property_setter.py.
+COMPANY_HIDDEN_DOCTYPES = ["Sales Order", "Delivery Note", "Sales Invoice"]
+
 # The header Cost Center is filled from the Branch (see utils/branch.js), so users cannot edit it.
 READ_ONLY_FIELDS = [
     ("Sales Order", "cost_center"),
@@ -43,4 +47,5 @@ READ_ONLY_FIELDS = [
 def apply_property_setters():
     """after_migrate: apply the selling field changes above."""
     hide_fields(HIDDEN_FIELDS)
+    hide_company_fields(COMPANY_HIDDEN_DOCTYPES)
     make_fields_read_only(READ_ONLY_FIELDS)

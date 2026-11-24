@@ -22,8 +22,13 @@ integrasuite_budget.hide_buttons("Sales Order", {
 });
 
 // Delivery Notes and Sales Invoices are made from the Sales Order / Delivery Note itself (Create menu).
-for (const doctype of ["Delivery Note", "Sales Invoice"]) {
-    integrasuite_budget.hide_buttons(doctype, {
-        groups: [__("Get Items From")],
-    });
-}
+// One call per doctype: hide_buttons ignores later calls for a doctype it has already set up.
+integrasuite_budget.hide_buttons("Delivery Note", {
+    // Create menu: Shipment and Installation Note are not used.
+    labels: [__("Shipment"), __("Installation Note")],
+    groups: [__("Get Items From")],
+});
+
+integrasuite_budget.hide_buttons("Sales Invoice", {
+    groups: [__("Get Items From")],
+});

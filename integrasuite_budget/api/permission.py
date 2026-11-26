@@ -1,18 +1,14 @@
 import frappe
 
-
 def has_app_permission():
-    app_name = "integrasuite_budget"
+    user_roles = frappe.get_roles(frappe.session.user)
 
-    settings = frappe.get_all(
-        "App Setting",
-        fields=["name", "app_name", "hide"]
-    )
+    if "System Manager" in user_roles:
+        return True
 
-    for setting in settings:
-        apps = (setting.app_name or "").split()
+    allowed_roles = [
+        "Budget Manager",
+        "Budget User",
+    ]
 
-        if app_name in apps:
-            return not bool(setting.hide)
-
-    return True
+    return any(role in user_roles for role in allowed_roles)

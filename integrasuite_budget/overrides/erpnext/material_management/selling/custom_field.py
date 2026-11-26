@@ -9,10 +9,24 @@ from integrasuite_budget.overrides.erpnext.material_management.utils.custom_fiel
 # the same on all three, so ERPNext copies it along SO -> DN -> SI (and to returns).
 SELLING_BRANCH_FIELD = {**BRANCH_FIELD, "insert_after": "customer"}
 
+# Same fieldname, options and default as ERPNext's Purchase Taxes and Charges field, so ERPNext's
+# generic tax code picks it up, and it maps over to the purchase side on inter-company invoices.
+# Not mandatory: a blank value means "Add" everywhere. See selling/add_deduct_tax.py.
+ADD_DEDUCT_TAX_FIELD = {
+    "fieldname": "add_deduct_tax",
+    "label": "Add or Deduct",
+    "fieldtype": "Select",
+    "options": "Add\nDeduct",
+    "default": "Add",
+    "insert_after": "charge_type",
+}
+
 CUSTOM_FIELDS = {
     "Sales Order": [SELLING_BRANCH_FIELD],
     "Delivery Note": [SELLING_BRANCH_FIELD],
     "Sales Invoice": [SELLING_BRANCH_FIELD],
+    # Child table of Quotation, SO, DN, SI, POS Invoice and Sales Taxes and Charges Template.
+    "Sales Taxes and Charges": [ADD_DEDUCT_TAX_FIELD],
 }
 
 

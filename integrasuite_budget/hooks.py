@@ -34,6 +34,7 @@ override_doctype_class = {
     "GL Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.gl_entry.CustomGLEntry",
     "Purchase Invoice": f"{_MM}.buying.liquidated_damages.CustomPurchaseInvoice",
     "Stock Entry": f"{_MM}.stock.purchase_expense_account.CustomStockEntry",
+    "Sales Invoice": f"{_MM}.selling.add_deduct_tax.CustomSalesInvoice",
 }
 doctype_js = {
     "Journal Entry": "overrides/erpnext/accounts/js/journal_entry.js",
@@ -50,9 +51,27 @@ doctype_js = {
         f"{_MM_JS}/buying/supplier_invoice_no.js",
     ],
     "Stock Entry": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/stock/property_setter.js"],
-    "Sales Order": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/selling/property_setter.js"],
-    "Delivery Note": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/selling/property_setter.js"],
-    "Sales Invoice": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/selling/property_setter.js"],
+    "Sales Order": [
+        f"{_MM_JS}/utils/hide_buttons.js",
+        f"{_MM_JS}/utils/branch.js",
+        f"{_MM_JS}/selling/property_setter.js",
+        f"{_MM_JS}/selling/add_deduct_tax.js",
+    ],
+    "Delivery Note": [
+        f"{_MM_JS}/utils/hide_buttons.js",
+        f"{_MM_JS}/utils/branch.js",
+        f"{_MM_JS}/selling/property_setter.js",
+        f"{_MM_JS}/selling/add_deduct_tax.js",
+    ],
+    "Sales Invoice": [
+        f"{_MM_JS}/utils/hide_buttons.js",
+        f"{_MM_JS}/utils/branch.js",
+        f"{_MM_JS}/selling/property_setter.js",
+        f"{_MM_JS}/selling/add_deduct_tax.js",
+    ],
+    # Other forms with a Sales Taxes and Charges table.
+    "Quotation": f"{_MM_JS}/selling/add_deduct_tax.js",
+    "POS Invoice": f"{_MM_JS}/selling/add_deduct_tax.js",
 }
 
 after_migrate = [
@@ -61,10 +80,16 @@ after_migrate = [
     f"{_MM}.buying.custom_field.apply_custom_fields",
     f"{_MM}.stock.custom_field.apply_custom_fields",
     f"{_MM}.selling.custom_field.apply_custom_fields",
+    f"{_MM}.selling.add_deduct_tax.set_missing_add_deduct_tax",
     f"{_MM}.buying.property_setter.apply_property_setters",
     f"{_MM}.stock.property_setter.apply_property_setters",
     f"{_MM}.selling.property_setter.apply_property_setters",
 ]
+
+# Applies the selling Add/Deduct tax monkey-patch in every web and background worker,
+# see selling/add_deduct_tax.py.
+before_request = [f"{_MM}.selling.add_deduct_tax.apply_patch"]
+before_job = [f"{_MM}.selling.add_deduct_tax.apply_patch"]
 
 
 
@@ -242,6 +267,9 @@ doc_events = {
     },
     "Sales Invoice": {
         "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
+    "POS Invoice": {
+        "validate": f"{_MM}.selling.add_deduct_tax.validate_pos_invoice",
     },
 }
 

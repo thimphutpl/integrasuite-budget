@@ -17,7 +17,7 @@ add_to_apps_screen = [
 		"logo": "/assets/integrasuite_budget/images/image.png",
 		"title": app_title,
 		"route": app_home,
-		# "has_permission": "integrasuite_budget.api.permission.has_app_permission",
+		"has_permission": "integrasuite_budget.api.permission.has_app_permission",
         "sequence_id": 3,
 	}
 ]

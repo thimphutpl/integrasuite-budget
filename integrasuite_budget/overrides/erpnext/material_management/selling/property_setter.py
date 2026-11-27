@@ -31,6 +31,7 @@ HIDDEN_FIELDS = [
     ("Sales Order", "project"),
     ("Delivery Note", "project"),
     ("Sales Invoice", "project"),
+    ("Selling Settings", "allow_negative_rates_for_items"),
 ]
 
 # Single-company site, see the Company note in buying/property_setter.py.

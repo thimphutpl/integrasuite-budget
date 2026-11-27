@@ -10,13 +10,16 @@
     if (integrasuite_budget._branch_handlers_added) return;
     integrasuite_budget._branch_handlers_added = true;
 
-    // Item link fields that mean the document was made from an earlier step of MR -> PO -> PR -> PI.
+    // Item link fields that mean the document was made from an earlier step of MR -> PO -> PR -> PI
+    // or SO -> DN -> SI.
     // Branch then comes from that document and is locked.
     const SOURCE_LINKS = {
         "Purchase Order": ["material_request"],
         "Purchase Receipt": ["purchase_order", "material_request"],
         "Purchase Invoice": ["purchase_order", "purchase_receipt"],
         "Stock Entry": ["material_request"],
+        "Delivery Note": ["against_sales_order"],
+        "Sales Invoice": ["sales_order", "delivery_note"],
     };
 
     async function set_cost_center_from_branch(frm) {
@@ -24,16 +27,29 @@
 
         const { message } = await frappe.db.get_value("Branch", frm.doc.branch, "cost_center");
         if (message?.cost_center) await frm.set_value("cost_center", message.cost_center);
-        sync_stock_entry_rows(frm);
+        sync_item_rows(frm);
     }
 
-    // Stock Entry rows start with the company default cost center, so ERPNext's "fill empty rows"
-    // never applies. Point every row at the header's (the server enforces the same on validate,
-    // see stock/stock_entry.py).
-    function sync_stock_entry_rows(frm) {
-        if (frm.doctype !== "Stock Entry" || !frm.doc.cost_center || frm.doc.docstatus !== 0) return;
+    // ERPNext fills each item row with the item / company default cost center as soon as an item is
+    // picked, so its "copy the header into empty rows" never applies. The rows always follow the
+    // header's instead (the server enforces the same on validate, see utils/branch.py).
+    // Maps each branch doctype to its item row doctype.
+    const ROW_SYNC_DOCTYPES = {
+        "Material Request": "Material Request Item",
+        "Purchase Order": "Purchase Order Item",
+        "Purchase Receipt": "Purchase Receipt Item",
+        "Purchase Invoice": "Purchase Invoice Item",
+        "Stock Entry": "Stock Entry Detail",
+        "Sales Order": "Sales Order Item",
+        "Delivery Note": "Delivery Note Item",
+        "Sales Invoice": "Sales Invoice Item",
+    };
 
-        for (const row of frm.doc.items || []) {
+    function sync_item_rows(frm) {
+        if (!ROW_SYNC_DOCTYPES[frm.doctype] || !frm.doc.cost_center || frm.doc.docstatus !== 0) return;
+
+        // Tax rows too: they come from the tax template with its own (company default) cost center.
+        for (const row of [...(frm.doc.items || []), ...(frm.doc.taxes || [])]) {
             if (row.cost_center !== frm.doc.cost_center) {
                 frappe.model.set_value(row.doctype, row.name, "cost_center", frm.doc.cost_center);
             }
@@ -45,7 +61,7 @@
         return (frm.doc.items || []).some((item) => links.some((link) => item[link]));
     }
 
-    for (const doctype of ["Material Request", "Purchase Order", "Purchase Receipt", "Purchase Invoice", "Stock Entry"]) {
+    for (const doctype of ["Material Request", "Purchase Order", "Purchase Receipt", "Purchase Invoice", "Stock Entry", "Sales Order", "Delivery Note", "Sales Invoice"]) {
         frappe.ui.form.on(doctype, {
             setup(frm) {
                 frm.set_query("branch", () => ({
@@ -56,15 +72,24 @@
             refresh(frm) {
                 // A mapped document whose source had no cost center yet still gets the branch's one.
                 if (frm.is_new() && frm.doc.branch && !frm.doc.cost_center) set_cost_center_from_branch(frm);
-                // A Stock Entry made from an MR arrives with the header set but rows on the default.
-                else if (frm.is_new()) sync_stock_entry_rows(frm);
+                // A mapped document (e.g. a Stock Entry made from an MR) can arrive with the header set but rows on the default.
+                else if (frm.is_new()) sync_item_rows(frm);
 
-                // Cost Center is always read-only (buying/ and stock/ property_setter.py); only Branch needs locking here.
+                // Cost Center is always read-only (buying/, stock/ and selling/ property_setter.py); only Branch needs locking here.
                 // Never lock an empty Branch, or the mandatory field could not be filled in.
                 frm.set_df_property("branch", "read_only", is_from_source(frm) && frm.doc.branch ? 1 : 0);
             },
 
             branch: set_cost_center_from_branch,
+        });
+    }
+
+    // A row added or re-itemed gets the item / company default cost center; put it back to the header's.
+    for (const row_doctype of Object.values(ROW_SYNC_DOCTYPES)) {
+        frappe.ui.form.on(row_doctype, {
+            cost_center(frm) {
+                sync_item_rows(frm);
+            },
         });
     }
 })();

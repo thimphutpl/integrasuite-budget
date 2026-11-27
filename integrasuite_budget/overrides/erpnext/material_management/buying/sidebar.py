@@ -7,6 +7,9 @@ HIDDEN_SIDEBAR_ITEMS = {
         ("DocType", "Request for Quotation"),
         ("DocType", "Supplier Quotation"),
     ],
+    "Selling": [
+        ("DocType", "Quotation"),
+    ],
 }
 
 

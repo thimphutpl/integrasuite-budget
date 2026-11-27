@@ -17,7 +17,7 @@ add_to_apps_screen = [
 		"logo": "/assets/integrasuite_budget/images/image.png",
 		"title": app_title,
 		"route": app_home,
-		# "has_permission": "integrasuite_budget.api.permission.has_app_permission",
+		"has_permission": "integrasuite_budget.api.permission.has_app_permission",
         "sequence_id": 3,
 	}
 ]
@@ -34,6 +34,7 @@ override_doctype_class = {
     "GL Entry": "integrasuite_budget.overrides.erpnext.accounts.doctype.gl_entry.CustomGLEntry",
     "Purchase Invoice": f"{_MM}.buying.liquidated_damages.CustomPurchaseInvoice",
     "Stock Entry": f"{_MM}.stock.purchase_expense_account.CustomStockEntry",
+    "Sales Invoice": f"{_MM}.selling.add_deduct_tax.CustomSalesInvoice",
 }
 doctype_js = {
     "Journal Entry": "overrides/erpnext/accounts/js/journal_entry.js",
@@ -50,6 +51,27 @@ doctype_js = {
         f"{_MM_JS}/buying/supplier_invoice_no.js",
     ],
     "Stock Entry": [f"{_MM_JS}/utils/hide_buttons.js", f"{_MM_JS}/utils/branch.js", f"{_MM_JS}/stock/property_setter.js"],
+    "Sales Order": [
+        f"{_MM_JS}/utils/hide_buttons.js",
+        f"{_MM_JS}/utils/branch.js",
+        f"{_MM_JS}/selling/property_setter.js",
+        f"{_MM_JS}/selling/add_deduct_tax.js",
+    ],
+    "Delivery Note": [
+        f"{_MM_JS}/utils/hide_buttons.js",
+        f"{_MM_JS}/utils/branch.js",
+        f"{_MM_JS}/selling/property_setter.js",
+        f"{_MM_JS}/selling/add_deduct_tax.js",
+    ],
+    "Sales Invoice": [
+        f"{_MM_JS}/utils/hide_buttons.js",
+        f"{_MM_JS}/utils/branch.js",
+        f"{_MM_JS}/selling/property_setter.js",
+        f"{_MM_JS}/selling/add_deduct_tax.js",
+    ],
+    # Other forms with a Sales Taxes and Charges table.
+    "Quotation": f"{_MM_JS}/selling/add_deduct_tax.js",
+    "POS Invoice": f"{_MM_JS}/selling/add_deduct_tax.js",
 }
 
 after_migrate = [
@@ -57,9 +79,17 @@ after_migrate = [
     f"{_MM}.buying.workspace.fix_report_links",
     f"{_MM}.buying.custom_field.apply_custom_fields",
     f"{_MM}.stock.custom_field.apply_custom_fields",
+    f"{_MM}.selling.custom_field.apply_custom_fields",
+    f"{_MM}.selling.add_deduct_tax.set_missing_add_deduct_tax",
     f"{_MM}.buying.property_setter.apply_property_setters",
     f"{_MM}.stock.property_setter.apply_property_setters",
+    f"{_MM}.selling.property_setter.apply_property_setters",
 ]
+
+# Applies the selling Add/Deduct tax monkey-patch in every web and background worker,
+# see selling/add_deduct_tax.py.
+before_request = [f"{_MM}.selling.add_deduct_tax.apply_patch"]
+before_job = [f"{_MM}.selling.add_deduct_tax.apply_patch"]
 
 
 
@@ -208,14 +238,38 @@ override_whitelisted_methods = {
 # Hook on document methods and events
 
 doc_events = {
+    "Material Request": {
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
+    "Purchase Order": {
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
     "Purchase Receipt": {
-        "validate": f"{_MM}.buying.liquidated_damages.validate_actual_receipt_date",
+        "validate": [
+            f"{_MM}.utils.branch.set_cost_center_from_branch",
+            f"{_MM}.buying.liquidated_damages.validate_actual_receipt_date",
+        ],
     },
     "Purchase Invoice": {
-        "validate": f"{_MM}.buying.supplier_invoice_no.set_bill_no_from_purchase_receipt",
+        "validate": [
+            f"{_MM}.utils.branch.set_cost_center_from_branch",
+            f"{_MM}.buying.supplier_invoice_no.set_bill_no_from_purchase_receipt",
+        ],
     },
     "Stock Entry": {
-        "validate": f"{_MM}.stock.stock_entry.set_cost_center_from_branch",
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
+    "Sales Order": {
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
+    "Delivery Note": {
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
+    "Sales Invoice": {
+        "validate": f"{_MM}.utils.branch.set_cost_center_from_branch",
+    },
+    "POS Invoice": {
+        "validate": f"{_MM}.selling.add_deduct_tax.validate_pos_invoice",
     },
 }
 

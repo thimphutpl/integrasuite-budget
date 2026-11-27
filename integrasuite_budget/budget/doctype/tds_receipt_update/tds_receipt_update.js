@@ -2,32 +2,32 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('TDS Receipt Update', {
-	// refresh:function(frm){
-	// 	if (frm.doc.docstatus == 0 && in_list(["Other Invoice","Leave Encashment","Overtime"], frm.doc.purpose)){
-	// 		frm.add_custom_button(__('Get Invoices'),(doc)=>{
-	// 			get_invoices(frm);
-	// 		}).addClass("btn-primary")
-	// 	}
+	refresh:function(frm){
+		if (frm.doc.docstatus == 0 && in_list(["Other Invoice","Leave Encashment","Overtime","Employee Salary"], frm.doc.purpose)){
+			frm.add_custom_button(__('Get Invoices'),(doc)=>{
+				get_invoices(frm);
+			}).addClass("btn-primary")
+		}
 
-	// 	frm.set_query("pbva", function() {
-	// 		return {
-	// 			query: "integrasuite.budget.doctype.tds_receipt_update.tds_receipt_update.apply_pbva_filter",
-	// 		};
-	// 	});
-	// },
+		// frm.set_query("pbva", function() {
+		// 	return {
+		// 		query: "integrasuite.budget.doctype.tds_receipt_update.tds_receipt_update.apply_pbva_filter",
+		// 	};
+		// });
+	},
 
-	// purpose:function(frm){
-	// 	if (frm.doc.docstatus == 0 && in_list(["Other Invoice","Leave Encashment","Overtime"], frm.doc.purpose)){
-	// 		frm.add_custom_button(__('Get Invoices'),(doc)=>{
-	// 			get_invoices(frm);
-	// 		}).addClass("btn-primary")
-	// 	}
+	purpose:function(frm){
+		if (frm.doc.docstatus == 0 && in_list(["Other Invoice","Leave Encashment","Overtime","Employee Salary"], frm.doc.purpose)){
+			frm.add_custom_button(__('Get Invoices'),(doc)=>{
+				get_invoices(frm);
+			}).addClass("btn-primary")
+		}
 
-	// 	frm.clear_table("items");
-	// 	frm.refresh_field("items");
-	// 	frm.set_value('total_bill_amount', 0);
-	// 	frm.set_value('total_tax_amount', 0);
-	// }
+		frm.clear_table("items");
+		frm.refresh_field("items");
+		frm.set_value('total_bill_amount', 0);
+		frm.set_value('total_tax_amount', 0);
+	}
 });
 
 frappe.ui.form.on('TDS Remittance Item', {
@@ -44,7 +44,7 @@ frappe.ui.form.on('TDS Remittance Item', {
 })
 
 var get_invoices = function(frm){
-	if(in_list(["Other Invoice","Leave Encashment","Overtime"], frm.doc.purpose)){
+	if(in_list(["Other Invoice","Leave Encashment","Overtime","Employee Salary"], frm.doc.purpose)){
 		frm.clear_table("items");
 		frm.refresh_field("items");
 		frm.set_value('total_bill_amount', 0);
